@@ -722,47 +722,8 @@ void dasm_zend_op_array(zval *dst, const zend_op_array *src )
 
 }
 
-static void add_op_array(zval *dst, zend_op_array *op_array )
-{
 
-	zval zv;
-	array_init(&zv);
-	dasm_zend_op_array(&zv, op_array);
-    add_assoc_zval_ex(dst, ZEND_STRS("op_array"), &zv);
-}
-
-static void add_cg_function_table(zval *dst)
-{
-	 if (CG(function_table)) {
-		do {
-			zval zv;
-			array_init(&zv);
-			dasm_function_table(&zv, CG(function_table));
-			add_assoc_zval_ex(dst, ("function_table"), (sizeof("function_table")), &zv);
-		} while (0);
-
-	} else {
-		add_assoc_null_ex(dst, ("function_table"), (sizeof("function_table")));
-	}
-}
-
-static void add_cg_class_table(zval *dst)
-{
-	 if (CG(class_table)) {
-		do {
-			zval zv;
-			array_init(&zv);
-			dasm_class_table(&zv, CG(class_table));
-			add_assoc_zval_ex(dst, ("class_table"), (sizeof("class_table")), &zv);
-		} while (0);
-
-	} else {
-		add_assoc_null_ex(dst, ("class_table"), (sizeof("class_table")));
-	}
-}
-
-
-/* {{{ proto array xcache_dasm_file(string filename)
+/* {{{ proto array dasm_file(string filename)
    Disassemble file into opcode array by filename */
 #ifdef ZEND_BEGIN_ARG_INFO_EX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_dasm_file, 0, 0, 1)
@@ -788,21 +749,50 @@ PHP_FUNCTION(dasm_file)
 
 	zval zfilename;
 
-	ZVAL_STRINGL(&zfilename, filename, filename_len);
+	ZVAL_STRING(&zfilename, filename);
 
 	op_array = compile_filename(ZEND_REQUIRE, &zfilename);
 
+	zval_ptr_dtor(&zfilename);
+
 	array_init(return_value);
 
-	add_op_array(return_value, op_array);
+	zval zv;
+	array_init(&zv);
+	dasm_zend_op_array(&zv, op_array);
 
-	add_cg_function_table(return_value);
-	add_cg_class_table(return_value);
+	add_assoc_zval(return_value, "filename", &zfilename);
+	add_assoc_zval_ex(return_value, ZEND_STRS("op_array"), &zv);
+
+
+	if (CG(function_table)) {
+		do {
+			zval zv;
+			array_init(&zv);
+			dasm_function_table(&zv, CG(function_table));
+			add_assoc_zval_ex(return_value, ("function_table"), (sizeof("function_table")), &zv);
+		} while (0);
+
+	} else {
+		add_assoc_null_ex(return_value, ("function_table"), (sizeof("function_table")));
+	}
+
+	 if (CG(class_table)) {
+		do {
+			zval zv;
+			array_init(&zv);
+			dasm_class_table(&zv, CG(class_table));
+			add_assoc_zval_ex(return_value, ("class_table"), (sizeof("class_table")), &zv);
+		} while (0);
+
+	} else {
+		add_assoc_null_ex(return_value, ("class_table"), (sizeof("class_table")));
+	}
 }
 
 
 
-/* {{{ proto array xcache_dasm_string(string code)
+/* {{{ proto array dasm_string(string code)
    Disassemble php code into opcode array */
 #ifdef ZEND_BEGIN_ARG_INFO_EX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_dasm_string, 0, 0, 1)
@@ -828,10 +818,36 @@ PHP_FUNCTION(dasm_string)
 
 	array_init(return_value);
 
-	add_op_array(return_value, op_array);
+	zval zv;
+	array_init(&zv);
+	dasm_zend_op_array(&zv, op_array);
 
-	add_cg_function_table(return_value);
-	add_cg_class_table(return_value);
+	add_assoc_zval_ex(return_value, ZEND_STRS("op_array"), &zv);
+
+
+	if (CG(function_table)) {
+		do {
+			zval zv;
+			array_init(&zv);
+			dasm_function_table(&zv, CG(function_table));
+			add_assoc_zval_ex(return_value, ("function_table"), (sizeof("function_table")), &zv);
+		} while (0);
+
+	} else {
+		add_assoc_null_ex(return_value, ("function_table"), (sizeof("function_table")));
+	}
+
+	 if (CG(class_table)) {
+		do {
+			zval zv;
+			array_init(&zv);
+			dasm_class_table(&zv, CG(class_table));
+			add_assoc_zval_ex(return_value, ("class_table"), (sizeof("class_table")), &zv);
+		} while (0);
+
+	} else {
+		add_assoc_null_ex(return_value, ("class_table"), (sizeof("class_table")));
+	}
 
 }
 /* }}} */
@@ -931,10 +947,14 @@ zend_module_entry opcodedump_module_entry = {
 	STANDARD_MODULE_HEADER,
 	"opcodedump",
 	opcodedump_functions,
-	PHP_MINIT(opcodedump),
-	PHP_MSHUTDOWN(opcodedump),
-	PHP_RINIT(opcodedump),		/* Replace with NULL if there's nothing to do at request start */
-	PHP_RSHUTDOWN(opcodedump),	/* Replace with NULL if there's nothing to do at request end */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	//PHP_MINIT(opcodedump),
+	//PHP_MSHUTDOWN(opcodedump),
+	//PHP_RINIT(opcodedump),		 Replace with NULL if there's nothing to do at request start 
+	//PHP_RSHUTDOWN(opcodedump),	/* Replace with NULL if there's nothing to do at request end */
 	PHP_MINFO(opcodedump),
 	PHP_OPCODEDUMP_VERSION,
 	STANDARD_MODULE_PROPERTIES

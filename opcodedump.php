@@ -19,5 +19,6 @@ if (extension_loaded($module)) {
 } else {
 	$rs = "Module $module is not compiled into PHP";
 }
-var_dump($rs);
-?>
+echo 1;
+print_r($rs);
+echo 2;
