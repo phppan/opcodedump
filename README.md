@@ -1,9 +1,23 @@
 php7的opcode dump
 
 函数列表：
+## dasm_file 函数
+### 定义和用法
+Disassemble file into opcode array by filename 
+
+### 语法
+dasm_file(string filename)
+
+## dasm_string 函数
+### 定义和用法
+Disassemble php code into opcode array 
+
+### 语法
+dasm_file(string code)
 
 
 
+## 编译
 
 1.  $ cd ext/opcodedump
 2.  $ [phpize-cmd-path]
