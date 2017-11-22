@@ -13,9 +13,9 @@ dnl [  --with-opcodedump             Include opcodedump support])
 
 dnl Otherwise use enable:
 
-dnl PHP_ARG_ENABLE(opcodedump, whether to enable opcodedump support,
-dnl Make sure that the comment is aligned:
-dnl [  --enable-opcodedump           Enable opcodedump support])
+PHP_ARG_ENABLE(opcodedump, whether to enable opcodedump support,
+Make sure that the comment is aligned:
+[  --enable-opcodedump           Enable opcodedump support])
 
 if test "$PHP_OPCODEDUMP" != "no"; then
   dnl Write more examples of tests here...

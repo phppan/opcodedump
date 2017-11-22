@@ -141,11 +141,19 @@ PHP_MINFO_FUNCTION(opcodedump)
 }
 /* }}} */
 
+PHP_FUNCTION(hello)
+{
+    zend_string *strg;
+    strg = strpprintf(0, "hello world.");
+    RETURN_STR(strg);
+}
+
 /* {{{ opcodedump_functions[]
  *
  * Every user visible function must have an entry in opcodedump_functions[].
  */
 const zend_function_entry opcodedump_functions[] = {
+	 PHP_FE(hello, NULL)  /*添加这行*/
 	PHP_FE(confirm_opcodedump_compiled,	NULL)		/* For testing, remove later. */
 	PHP_FE_END	/* Must be the last line in opcodedump_functions[] */
 };
