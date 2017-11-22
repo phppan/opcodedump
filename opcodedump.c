@@ -722,6 +722,45 @@ void dasm_zend_op_array(zval *dst, const zend_op_array *src )
 
 }
 
+static void add_op_array(zval *dst, zend_op_array *op_array )
+{
+
+	zval zv;
+	array_init(&zv);
+	dasm_zend_op_array(&zv, op_array);
+    add_assoc_zval_ex(dst, ZEND_STRS("op_array"), &zv);
+}
+
+static void add_cg_function_table(zval *dst)
+{
+	 if (CG(function_table)) {
+		do {
+			zval zv;
+			array_init(&zv);
+			dasm_function_table(&zv, CG(function_table));
+			add_assoc_zval_ex(dst, ("function_table"), (sizeof("function_table")), &zv);
+		} while (0);
+
+	} else {
+		add_assoc_null_ex(dst, ("function_table"), (sizeof("function_table")));
+	}
+}
+
+static void add_cg_class_table(zval *dst)
+{
+	 if (CG(class_table)) {
+		do {
+			zval zv;
+			array_init(&zv);
+			dasm_class_table(&zv, CG(class_table));
+			add_assoc_zval_ex(dst, ("class_table"), (sizeof("class_table")), &zv);
+		} while (0);
+
+	} else {
+		add_assoc_null_ex(dst, ("class_table"), (sizeof("class_table")));
+	}
+}
+
 
 /* {{{ proto array xcache_dasm_file(string filename)
    Disassemble file into opcode array by filename */
@@ -753,43 +792,49 @@ PHP_FUNCTION(dasm_file)
 
 	op_array = compile_filename(ZEND_REQUIRE, &zfilename);
 
+	array_init(return_value);
 
-	zval zv;
-	array_init(&zv);
+	add_op_array(return_value, op_array);
 
-	dasm_zend_op_array(&zv, op_array);
-
-
- 	array_init(return_value);
-    add_assoc_zval_ex(return_value, ZEND_STRS("op_array"), &zv);
-
-    zval function_table;
-    array_init(&function_table);
-
-    if (CG(function_table)) {
-		do {
-			zval zv;
-			array_init(&zv);
-			dasm_function_table(&zv, CG(function_table));
-			add_assoc_zval_ex(return_value, ("function_table"), (sizeof("function_table")), &zv);
-		} while (0);
-
-	} else {
-		add_assoc_null_ex(return_value, ("function_table"), (sizeof("function_table")));
-	}
-
-	  if (CG(class_table)) {
-		do {
-			zval zv;
-			array_init(&zv);
-			dasm_class_table(&zv, CG(class_table));
-			add_assoc_zval_ex(return_value, ("class_table"), (sizeof("class_table")), &zv);
-		} while (0);
-
-	} else {
-		add_assoc_null_ex(return_value, ("class_table"), (sizeof("class_table")));
-	}
+	add_cg_function_table(return_value);
+	add_cg_class_table(return_value);
 }
+
+
+
+/* {{{ proto array xcache_dasm_string(string code)
+   Disassemble php code into opcode array */
+#ifdef ZEND_BEGIN_ARG_INFO_EX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_dasm_string, 0, 0, 1)
+	ZEND_ARG_INFO(0, code)
+ZEND_END_ARG_INFO()
+#else
+static unsigned char arginfo_dasm_string[] = { 1, BYREF_NONE };
+#endif
+
+PHP_FUNCTION(dasm_string)
+{
+	zval *code;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &code) == FAILURE) {
+		return;
+	}
+
+	zend_op_array *op_array = NULL;
+
+	char *eval_name = zend_make_compiled_string_description("runtime-created function" TSRMLS_CC);
+
+	op_array = compile_string(code, eval_name TSRMLS_CC);
+
+	array_init(return_value);
+
+	add_op_array(return_value, op_array);
+
+	add_cg_function_table(return_value);
+	add_cg_class_table(return_value);
+
+}
+/* }}} */
 
 
 /* The previous line is meant for vim and emacs, so it can correctly fold and
@@ -874,6 +919,7 @@ PHP_MINFO_FUNCTION(opcodedump)
  */
 const zend_function_entry opcodedump_functions[] = {
 	PHP_FE(dasm_file,         arginfo_dasm_file)
+	PHP_FE(dasm_string, 	arginfo_dasm_string)
 
 	PHP_FE_END	/* Must be the last line in opcodedump_functions[] */
 };
