@@ -20,8 +20,8 @@ dasm_file(string code)
 ## 编译
 
 1.  $ cd ext/opcodedump
-2.  $ [phpize-cmd-path]
-1.  $ ./configure --with-php-config=[php-config-cmd-path] --[with|enable]-opcodedump
-2.  $ make && make install
-3.  $ [php7-cmd-path] -f ext/opcodedump/opcodedump.php
+1.  $ [phpize-cmd-path]
+1.  $ ./configure --with-php-config=[php-config-cmd-path]
+1.  $ make && make install
+1.  $ [php7-cmd-path] -f ext/opcodedump/opcodedump.php
 
