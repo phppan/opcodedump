@@ -58,6 +58,13 @@ ZEND_END_MODULE_GLOBALS(opcodedump)
 ZEND_TSRMLS_CACHE_EXTERN()
 #endif
 
+#if (PHP_MAJOR_VERSION == 7 && PHP_MINOR_VERSION == 0)
+# define ZEND_ENGINE_7_0
+#endif
+
+#if (PHP_MAJOR_VERSION == 7 && PHP_MINOR_VERSION >= 1)
+# define ZEND_ENGINE_7_1
+#endif
 #endif	/* PHP_OPCODEDUMP_H */
 
 

@@ -11,11 +11,13 @@ foreach($functions as $func) {
     echo $func."$br\n";
 }
 echo "$br\n";
-$function = 'confirm_' . $module . '_compiled';
+
+$path = dirname(__FILE__) . "/";
+echo __FILE__, "\r\n";
 if (extension_loaded($module)) {
-	$str = $function($module);
+	$rs = dasm_file($path . "demo.php");
 } else {
-	$str = "Module $module is not compiled into PHP";
+	$rs = "Module $module is not compiled into PHP";
 }
-echo "$str\n";
+var_dump($rs);
 ?>
